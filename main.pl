@@ -11,16 +11,12 @@
 % OK - renommer les fonctions en anglais (play_game_o etc)
 % OK - Afficher la colonne à laquelle l'IA joue (ex: IA a joué o sur la colonne 3.)
 % OK - Voir comment marche l'IA, min/max ou hill climbbing ou autre
-
-% Changer G Grille en P Plateau, J en Joueur (comme dans son exemple de Taquin)
-% Régler le pb du check en diagonale
-% Fichiers : Check_fin_game, print.pl, AI.pl, utils.pls, player.pl
-% Quand l'ia gagne, la game continue, A FIXER
-% Quand on arrive à impossible de jouer ce coup ou ce genre de chose ça nique tout pour l'affichage du jeu
-% renommer les variables (L en LIST, G en BOARD)
-% réorganiser les blocs de code
 % OK - VIRER TOUS LES WARNING
-% Diviser en plusieurs fichier (un main, un setup etats etc, fonctions utiles (ajouter fin de liste), affichage de grille, evaluation de la fin du jeu).
+% OK - Diviser en plusieurs fichier (un main, un setup etats etc, fonctions utiles (ajouter fin de liste), affichage de grille, evaluation de la fin du jeu).
+
+% Changer G Grille en B Board, J Joueur en P Player (Metter les variables en anglais comme les fonctions) (comme dans son exemple de Taquin)
+% Régler le pb du check en diagonale
+% Quand on arrive à impossible de jouer ce coup ou ce genre de chose ça nique tout pour l'affichage du jeu
 
 :- consult(utils).
 :- consult(check_end_game).

@@ -12,6 +12,7 @@
 % OK - Afficher la colonne à laquelle l'IA joue (ex: IA a joué o sur la colonne 3.)
 % OK - Voir comment marche l'IA, min/max ou hill climbbing ou autre
 
+% Régler le pb du check en diagonale
 % Fichiers : Check_fin_game, print.pl, AI.pl, utils.pls, player.pl
 % Quand l'ia gagne, la game continue, A FIXER
 % Quand on arrive à impossible de jouer ce coup ou ce genre de chose ça nique tout pour l'affichage du jeu
@@ -44,25 +45,25 @@ get_element_from_index(IDX, L, []):- lenght(L, N1), N1 < IDX.
 get_element_from_index(IDX, L, E):- nth1(IDX, L, E).
 
 % make_move/5 est pour le mode 1 contre 1 et garde en mémoire le coup qui vient d'être joué et affiche une erreur si nécessaire (Params : 1er = colonne, 2e = grille, 3e = joueur, 4e = nouvelle grille, 5e = grille de sauvegarde)	
-make_move(1, [L|G], x, _, I):- lenght(L,N), N >= 6, print_impossible_move(), turn_x(I).
-make_move(1, [L|G], o, _, I):- lenght(L,N), N >= 6, print_impossible_move(), turn_o(I).
-make_move(1, [L|G], J, F, I):- lenght(L,N), N < 6, add_to_end(J,L,M), F=[M|G].
-make_move(N, [L|G], x, _, I):- N > 7, print_impossible_move(), turn_x(I).
-make_move(N, [L|G], o, _, I):- N > 7, print_impossible_move(), turn_o(I).
+make_move(1, [L|_], x, _, I):- lenght(L,N), N >= 6, print_impossible_move(), turn_x(I).
+make_move(1, [L|_], o, _, I):- lenght(L,N), N >= 6, print_impossible_move(), turn_o(I).
+make_move(1, [L|G], J, F, _):- lenght(L,N), N < 6, add_to_end(J,L,M), F=[M|G].
+make_move(N, [_|_], x, _, I):- N > 7, print_impossible_move(), turn_x(I).
+make_move(N, [_|_], o, _, I):- N > 7, print_impossible_move(), turn_o(I).
 make_move(N, [T|X], J, [T|G], I):- 	N > 0,
 									N1 is N - 1,
 									make_move(N1, X, J, G, I).
 
 % make_move_player/5 est pour le mode contre l'ia et garde en mémoire le coup qui vient d'être joué par le joueur et affiche une erreur si nécessaire (Params : Les mêmes que make_move/5)
-make_move_player(1, [L|G], x, _, I):- lenght(L,N), N >= 6, print_impossible_move(), player_turn(I).
-make_move_player(1, [L|G], J, F, I):- lenght(L,N), N < 6, add_to_end(J,L,M), F=[M|G].
-make_move_player(N, [L|G], x, _, I):- N > 7, print_impossible_move(), player_turn(I).	
+make_move_player(1, [L|_], x, _, I):- lenght(L,N), N >= 6, print_impossible_move(), player_turn(I).
+make_move_player(1, [L|G], J, F, _):- lenght(L,N), N < 6, add_to_end(J,L,M), F=[M|G].
+make_move_player(N, [_|_], x, _, I):- N > 7, print_impossible_move(), player_turn(I).	
 make_move_player(N, [T|X], J, [T|G], I):- 	N > 0,
 											N1 is N - 1,
 											make_move_player(N1, X, J, G, I).
 
 % make_move_ai/5 est pour le mode contre l'ia et garde en mémoire le coup qui vient d'être joué par l'ia et affiche une erreur si nécessaire (Params : Les mêmes que make_move/5)
-make_move_ai(1, [L|G], J, F, I):- lenght(L,N), N < 6, add_to_end(J,L,M), F=[M|G].
+make_move_ai(1, [L|G], J, F, _):- lenght(L,N), N < 6, add_to_end(J,L,M), F=[M|G].
 make_move_ai(N, [T|X], J, [T|G], I):- 	N > 0,
 										N1 is N - 1,
 										make_move_ai(N1, X, J, G, I).
@@ -81,7 +82,7 @@ check_end_game_horizontally(N, G, J):-	N > 0,
 % check_end_game_horizontally/2 vérifie si 4 valeurs sont les mêmes horizontalement (Params : 1er = grille, J = joueur)
 check_end_game_horizontally(G,J):- check_end_game_horizontally(6, G, J).				 
 
-check_end_game_diagonally_second(G,D,J,0):- write(D), nl, sublist([J,J,J,J],D).
+check_end_game_diagonally_second(_,D,J,0):- sublist([J,J,J,J],D).
 check_end_game_diagonally_second(G,D,J,N):-	N > 0,
 											maplist(get_element_from_index(N), G, L),
 											get_element_from_index(N,L,E),
@@ -90,7 +91,7 @@ check_end_game_diagonally_second(G,D,J,N):-	N > 0,
 
 check_end_game_diagonally_second(G,J):- check_end_game_diagonally_second(G,[],J,6).
 
-check_end_game_diagonally_first(G,D,J,0):-  sublist([J,J,J,J],D).
+check_end_game_diagonally_first(_,D,J,0):-  sublist([J,J,J,J],D).
 check_end_game_diagonally_first(G,D,J,N):-	N > 0,
 											maplist(get_element_from_index(N), G, L),
 											N2 is 7 - N,
@@ -101,8 +102,8 @@ check_end_game_diagonally_first(G,D,J,N):-	N > 0,
 check_end_game_diagonally_first(G,J):- check_end_game_diagonally_first(G,[],J,6).
 
 
-check_end_game_diagonally(G,N,X,J):- check_end_game_diagonally_first(X,J),!.
-check_end_game_diagonally(G,N,X,J):- check_end_game_diagonally_second(X,J),!.
+check_end_game_diagonally(_,_,X,J):- check_end_game_diagonally_first(X,J),!.
+check_end_game_diagonally(_,_,X,J):- check_end_game_diagonally_second(X,J),!.
 check_end_game_diagonally(G,N,X,J):-	N < 7,
 										maplist(get_element_from_index(N), G, L),
 										N1 is N + 1,
@@ -156,7 +157,12 @@ losing_move(5,G):- make_move_ai(5,G,o,N,G), winning_move(_,N,x).
 losing_move(6,G):- make_move_ai(6,G,o,N,G), winning_move(_,N,x).
 losing_move(7,G):- make_move_ai(7,G,o,N,G), winning_move(_,N,x).
 
-player_turn(G):- check_end_game(G,J), print_winner(J),!.
+
+space_left(1, [L|_], E, L):- lenght(L,N2), N3 is 6-N2, E=N3.
+space_left(N, [_|X], E, L):- N > 0,
+							N1 is N-1,
+							space_left(N1, X, E, L).
+
 turn_ai(G):- check_end_game(G,J), print_winner(J),!.
 
 % turn_ai/1 joue un coup gagnant (Params : G = grille)
@@ -173,18 +179,6 @@ turn_ai(G):-   	winning_move(C,G,x), make_move_ai(C,G,o,X,G),
 			   	nl,
 			   	player_turn(X).
 
-turn_ai(0, G):- print_no_move_available().
-
-turn_ai(C, G):- make_move_ai(C,G,o,X,G),
-				print_ai_move(C),
-			    print_board(X),
-			    nl,
-			    player_turn(X).
-
-space_left(1, [L|G], E, L):- lenght(L,N2), N3 is 6-N2, E=N3.
-space_left(N, [T|X], E, L):- N > 0,
-							 N1 is N-1,
-							 space_left(N1, X, E, L).
 
 % turn_ai/1 joue un coup le plus au centre qui n'est pas perdant en essayant de gagner varticalement (Params : G = grille)
 turn_ai(G):- space_left(4,G,E,L), end_of_list(L,o), E > 3, not(losing_move(4,G)), turn_ai(4,G).
@@ -214,6 +208,15 @@ turn_ai(G):- turn_ai(1,G).
 turn_ai(G):- turn_ai(7,G).
 turn_ai(G):- turn_ai(0,G).
 
+turn_ai(0, _):- print_no_move_available().
+
+turn_ai(C, G):- make_move_ai(C,G,o,X,G),
+				print_ai_move(C),
+				print_board(X),
+				nl,
+				player_turn(X).
+		
+
 % player_turn/1 demande au joueur contre l'ia de jouer (Params : G = grille)
 player_turn(G):- print_turn_x(),
 				read(N), make_move_player(N,G, x, X, G),
@@ -221,6 +224,7 @@ player_turn(G):- print_turn_x(),
 				nl,
 				turn_ai(X).
 
+player_turn(G):- check_end_game(G,J), print_winner(J),!.
 % play_ai démarre un 1 contre ia, l'ia commence
 play_ai:- turn_ai([[],[],[],[],[],[],[]]).
 

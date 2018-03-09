@@ -19,7 +19,7 @@
 % renommer les variables (L en LIST, G en BOARD)
 % réorganiser les blocs de code
 % VIRER TOUS LES WARNING
-% Afficher la colonne à laquelle l'IA joue (ex: IA a joué o sur la colone 3.)
+% Afficher la colonne à laquelle l'IA joue (ex: IA a joué o sur la colonne 3.)
 % Voir comment marche l'IA, min/max ou hill climbbing ou autre
 
 
@@ -45,7 +45,7 @@ lenght([_|L],N):- lenght(L,N1),
 get_element_from_index(IDX, L, []):- lenght(L, N1), N1 < IDX.
 get_element_from_index(IDX, L, E):- nth1(IDX, L, E).
 
-% make_move/5 est pour le mode 1 contre 1 et garde en mémoire le coup qui vient d'être joué et affiche une erreur si nécessaire (Params : 1er = colone, 2e = grille, 3e = joueur, 4e = nouvelle grille, 5e = grille de sauvegarde)	
+% make_move/5 est pour le mode 1 contre 1 et garde en mémoire le coup qui vient d'être joué et affiche une erreur si nécessaire (Params : 1er = colonne, 2e = grille, 3e = joueur, 4e = nouvelle grille, 5e = grille de sauvegarde)	
 make_move(1, [L|G], x, _, I):- lenght(L,N), N >= 6, print_impossible_move(), turn_x(I).
 make_move(1, [L|G], o, _, I):- lenght(L,N), N >= 6, print_impossible_move(), turn_o(I).
 make_move(1, [L|G], J, F, I):- lenght(L,N), N < 6, add_to_end(J,L,M), F=[M|G].
@@ -83,8 +83,7 @@ check_end_game_horizontally(N, G, J):-	N > 0,
 
 check_end_game_horizontally(G,J):- check_end_game_horizontally(6, G, J).				 
 
-
-
+% check_end_game_diagonally/2 vérifie si 4 valeurs sont les mêmes en diagonale (Params : G = grille, J = joueur)
 check_end_game_diagonally_2(G,D,J,0):- sublist([J,J,J,J],D).
 check_end_game_diagonally_2(G,D,J,N):-	N > 0,
 										maplist(get_element_from_index(N), G, L),
@@ -114,8 +113,7 @@ check_end_game_diagonally(G,N,X,J):-	N < 7,
 
 check_end_game_diagonally(G,J):- check_end_game_diagonally(G,1,[],J).
 
-% D�finition et test des conditions de fin de jeu
-/* Param�tres : G grille, J joueur */
+% check_end_game/2 vérifie pour chaque joueur si il a gagné (Params : G = grille, J = joueur gagnant retourné)
 check_end_game(G, J):- check_end_game_vertically(G,x), J=x.
 check_end_game(G, J):- check_end_game_vertically(G,o), J=o.
 check_end_game(G, J):- check_end_game_horizontally(G,x), J=x.
@@ -123,25 +121,26 @@ check_end_game(G, J):- check_end_game_horizontally(G,o), J=o.
 check_end_game(G, J):- check_end_game_diagonally(G,x), J=x.
 check_end_game(G, J):- check_end_game_diagonally(G,o), J=o.
 
-
-/* Param�tres : G grille*/
-turn_x(G):-check_end_game(G,J), print_winner(J),!.
-turn_o(G):-check_end_game(G,J), print_winner(J),!.
+% turn_x/1 vérifie si o a gagné sinon demande à x de jouer (Params : G = grille)
+turn_x(G):- check_end_game(G,J), print_winner(J),!.
 turn_x(G):- print_turn_x(),
 			read(N), make_move(N,G, x, X, G),
 			print_board(X),
 			nl,
 			turn_o(X).
+
+% turn_o/1 vérifie si x a gagné sinon demande à o de jouer (Params : G = grille)
+turn_o(G):- check_end_game(G,J), print_winner(J),!.
 turn_o(G):- print_turn_o(),
 			read(N), make_move(N,G, o, X, G),
 			print_board(X),
 			nl,
 			turn_x(X).
 
-% Lancement du jeu : grille de d�part de 6*7 (vide). C'est le joueur 'o' qui commence, suivi par x, jusqu'� ce que l'un des deux gagne [ou GRILLE PLEINE]
+% play affiche la grille de jeu et démarre un 1 contre 1, le joueur o commence
 play:- print_board([[],[],[],[],[],[],[]]), nl, turn_o([[],[],[],[],[],[],[]]).
 
-%Un coup gagant est un coup qui mene à un état de jeu ou le joueur est vainqueur
+% winning_move/3 vérifie un coup lui permet de gagner la partie, si oui il retourne le coup en question (Params : C = coup gagnant, G = grille, J = joueur)
 winning_move(C,G,J):- make_move_ai(1,G,J,N,G), check_end_game(N,J), C=1.
 winning_move(C,G,J):- make_move_ai(2,G,J,N,G), check_end_game(N,J), C=2.
 winning_move(C,G,J):- make_move_ai(3,G,J,N,G), check_end_game(N,J), C=3.
@@ -150,7 +149,7 @@ winning_move(C,G,J):- make_move_ai(5,G,J,N,G), check_end_game(N,J), C=5.
 winning_move(C,G,J):- make_move_ai(6,G,J,N,G), check_end_game(N,J), C=6.
 winning_move(C,G,J):- make_move_ai(7,G,J,N,G), check_end_game(N,J), C=7.
 
-%Un coup perdant est un coup qui permet à l'adversaire de gagner
+% losing_move/2 vérifie que le coup de l'ia ne va pas parmettre à l'adversaire de gagner (Params : 1er = colonne, G = grille)
 losing_move(1,G):- make_move_ai(1,G,o,N,G), winning_move(_,N,x).
 losing_move(2,G):- make_move_ai(2,G,o,N,G), winning_move(_,N,x).
 losing_move(3,G):- make_move_ai(3,G,o,N,G), winning_move(_,N,x).
@@ -159,18 +158,17 @@ losing_move(5,G):- make_move_ai(5,G,o,N,G), winning_move(_,N,x).
 losing_move(6,G):- make_move_ai(6,G,o,N,G), winning_move(_,N,x).
 losing_move(7,G):- make_move_ai(7,G,o,N,G), winning_move(_,N,x).
 
-player_turn(G):-check_end_game(G,J), print_winner(J),!.
-turn_ai(G):-check_end_game(G,J), print_winner(J),!.
+player_turn(G):- check_end_game(G,J), print_winner(J),!.
+turn_ai(G):- check_end_game(G,J), print_winner(J),!.
 
-
-%Si un coup permet de gagner il faut le jouer.
+% turn_ai/1 joue un coup gagnant (Params : G = grille)
 turn_ai(G):-	winning_move(C,G,o), make_move_ai(C,G,o,X,G),
 			   	print_ai_move(C),
 			   	print_board(X),
 			   	nl,
 			   	player_turn(X).
 
-%Si un coup permet a l'adversaire de gagner on se défend(coup défensif).
+% turn_ai/1 joue un coup qui empêche l'adversaire de gagner (Params : G = grille)
 turn_ai(G):-   	winning_move(C,G,x), make_move_ai(C,G,o,X,G),
 			   	print_ai_move(C),
 			   	print_board(X),
@@ -178,7 +176,6 @@ turn_ai(G):-   	winning_move(C,G,x), make_move_ai(C,G,o,X,G),
 			   	player_turn(X).
 
 turn_ai(0, G):- print_no_move_available().
-
 
 turn_ai(C, G):- make_move_ai(C,G,o,X,G),
 				print_ai_move(C),
@@ -188,28 +185,28 @@ turn_ai(C, G):- make_move_ai(C,G,o,X,G),
 
 space_left(1, [L|G], E, L):- lenght(L,N2), N3 is 6-N2, E=N3.
 space_left(N, [T|X], E, L):- N > 0,
-								N1 is N-1,
-								space_left(N1, X, E, L).
-									
-%Si on a pas de coup immédiat on fait un coup au centre ou au plus près possible pour une victoire possible en verticale.
+							 N1 is N-1,
+							 space_left(N1, X, E, L).
+
+% turn_ai/1 joue un coup le plus au centre qui n'est pas perdant en essayant de gagner varticalement (Params : G = grille)
 turn_ai(G):- space_left(4,G,E,L), end_of_list(L,o), E > 3, not(losing_move(4,G)), turn_ai(4,G).
-turn_ai(G):- space_left(3,G,E,L), end_of_list(L,o), E > 3, not(losing_move(5,G)), turn_ai(5,G).
-turn_ai(G):- space_left(5,G,E,L), end_of_list(L,o), E > 3, not(losing_move(3,G)), turn_ai(3,G).
-turn_ai(G):- space_left(2,G,E,L), end_of_list(L,o), E > 3, not(losing_move(6,G)), turn_ai(6,G).
-turn_ai(G):- space_left(6,G,E,L), end_of_list(L,o), E > 3, not(losing_move(2,G)), turn_ai(2,G).
-turn_ai(G):- space_left(1,G,E,L), end_of_list(L,o), E > 3, not(losing_move(7,G)), turn_ai(7,G).
-turn_ai(G):- space_left(7,G,E,L), end_of_list(L,o), E > 3, not(losing_move(1,G)), turn_ai(1,G).
+turn_ai(G):- space_left(3,G,E,L), end_of_list(L,o), E > 3, not(losing_move(3,G)), turn_ai(3,G).
+turn_ai(G):- space_left(5,G,E,L), end_of_list(L,o), E > 3, not(losing_move(5,G)), turn_ai(5,G).
+turn_ai(G):- space_left(2,G,E,L), end_of_list(L,o), E > 3, not(losing_move(2,G)), turn_ai(2,G).
+turn_ai(G):- space_left(6,G,E,L), end_of_list(L,o), E > 3, not(losing_move(6,G)), turn_ai(6,G).
+turn_ai(G):- space_left(1,G,E,L), end_of_list(L,o), E > 3, not(losing_move(1,G)), turn_ai(1,G).
+turn_ai(G):- space_left(7,G,E,L), end_of_list(L,o), E > 3, not(losing_move(7,G)), turn_ai(7,G).
 
-%Sinon jouer au plus près du centre quand même.
-turn_ai(G):- turn_ai(4,G),not(losing_move(4,G)).
-turn_ai(G):- turn_ai(3,G),not(losing_move(5,G)).
-turn_ai(G):- turn_ai(5,G),not(losing_move(3,G)).
-turn_ai(G):- turn_ai(2,G),not(losing_move(6,G)).
-turn_ai(G):- turn_ai(6,G),not(losing_move(2,G)).
-turn_ai(G):- turn_ai(1,G),not(losing_move(7,G)).
-turn_ai(G):- turn_ai(7,G),not(losing_move(1,G)).
+% turn_ai/1 joue un coup le plus au centre qui n'est pas perdant (Params : G = grille)
+turn_ai(G):- turn_ai(4,G), not(losing_move(4,G)).
+turn_ai(G):- turn_ai(3,G), not(losing_move(3,G)).
+turn_ai(G):- turn_ai(5,G), not(losing_move(5,G)).
+turn_ai(G):- turn_ai(2,G), not(losing_move(2,G)).
+turn_ai(G):- turn_ai(6,G), not(losing_move(6,G)).
+turn_ai(G):- turn_ai(1,G), not(losing_move(1,G)).
+turn_ai(G):- turn_ai(7,G), not(losing_move(7,G)).
 
-%Déblocage de situation
+% turn_ai/1 joue un coup le plus au centre (Params : G = grille)
 turn_ai(G):- turn_ai(4,G).
 turn_ai(G):- turn_ai(3,G).
 turn_ai(G):- turn_ai(5,G).
@@ -219,18 +216,23 @@ turn_ai(G):- turn_ai(1,G).
 turn_ai(G):- turn_ai(7,G).
 turn_ai(G):- turn_ai(0,G).
 
+% player_turn/1 demande au joueur contre l'ia de jouer (Params : G = grille)
 player_turn(G):- print_turn_x(),
 				read(N), make_move_player(N,G, x, X, G),
 				print_board(X),
 				nl,
 				turn_ai(X).
 
+% play_ai démarre un 1 contre ia, l'ia commence
 play_ai:- turn_ai([[],[],[],[],[],[],[]]).
 
 
 
-% Affichage du gagnant
-/* Param�tres : J joueur */
+
+
+
+
+% print_winner/1 affiche le joueur gagnant (Params : J = Joueur)
 print_winner(J):-write('Le gagnant est '), write(J).
 
 print_turn_x:- write('Au tour de x ->'), nl.
@@ -250,6 +252,7 @@ print_board(G, N):-	N > 0,
 					print_separator(),
 					print_board(G, N1).
 
+% print_board/1 affiche la grille de jeu (Params : G = grille)
 print_board(G):- print_column_numbers(), print_board(G,6).
 
 print_column_numbers():- write(' + 1 + 2 + 3 + 4 + 5 + 6 + 7 +'), nl.

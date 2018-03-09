@@ -45,26 +45,26 @@ get_element_from_index(N, L, X):- nth1(N, L, X).
 
 % Fonction qui enregistre un coup jou� dans la grille
 /* Param�tres : N num�ro de la colonne dans laquelle J joue, G grille, J joueur, G' nouvelle grille */		
-make_move(1, [L|G], x, _, I):- lenght(L,N), N >= 6, write('Coup Invalide\n'), jouerCoupX(I).
-make_move(1, [L|G], o, _, I):- lenght(L,N), N >= 6, write('Coup Invalide\n'), jouerCoupO(I).
+make_move(1, [L|G], x, _, I):- lenght(L,N), N >= 6, write('Coup Invalide\n'), turn_x(I).
+make_move(1, [L|G], o, _, I):- lenght(L,N), N >= 6, write('Coup Invalide\n'), turn_o(I).
 make_move(1, [L|G], J, F, I):- lenght(L,N), N < 6, add_to_end(J,L,M), F=[M|G].
-make_move(N, [L|G], x, _, I):- N > 7, write('Coup Invalide\n'), jouerCoupX(I).
-make_move(N, [L|G], o, _, I):- N > 7, write('Coup Invalide\n'), jouerCoupO(I).
+make_move(N, [L|G], x, _, I):- N > 7, write('Coup Invalide\n'), turn_x(I).
+make_move(N, [L|G], o, _, I):- N > 7, write('Coup Invalide\n'), turn_o(I).
 make_move(N, [T|X], J, [T|G], I):- 	N > 0,
 										N1 is N-1,
 										make_move(N1, X, J, G, I).
 					
-make_move_player(1, [L|G], x, _, I):- lenght(L,N), N >= 6, write('Coup Invalide\n'), jouerCoupJoueur(I).
+make_move_player(1, [L|G], x, _, I):- lenght(L,N), N >= 6, write('Coup Invalide\n'), player_turn(I).
 make_move_player(1, [L|G], J, F, I):- lenght(L,N), N < 6, add_to_end(J,L,M), F=[M|G].
-make_move_player(N, [L|G], x, _, I):- N > 7, write('Coup Invalide\n'), jouerCoupJoueur(I).	
+make_move_player(N, [L|G], x, _, I):- N > 7, write('Coup Invalide\n'), player_turn(I).	
 make_move_player(N, [T|X], J, [T|G], I):- 	N > 0,
 										N1 is N-1,
 										make_move_player(N1, X, J, G, I).
 
-make_move_ia(1, [L|G], J, F, I):- lenght(L,N), N < 6, add_to_end(J,L,M), F=[M|G].
-make_move_ia(N, [T|X], J, [T|G], I):- 	N > 0,
+make_move_ai(1, [L|G], J, F, I):- lenght(L,N), N < 6, add_to_end(J,L,M), F=[M|G].
+make_move_ai(N, [T|X], J, [T|G], I):- 	N > 0,
 										N1 is N-1,
-										make_move_ia(N1, X, J, G, I).
+										make_move_ai(N1, X, J, G, I).
 % Condition de victoire verticale : 4 jetons les uns après les autres sur une même colonne
 /* Param�tres : G grille, J joueur */										
 check_end_game_vertically([L|_],J):- sublist([J,J,J,J], L),!.
@@ -123,111 +123,111 @@ check_end_game(G, J):- check_end_game_diagonally(G,o), J=o.
 write_winner(J):-write('Le Joueur '), write(J), write(' a gagné !').
 
 /* Param�tres : G grille*/
-jouerCoupX(G):-check_end_game(G,J), write_winner(J),!.
-jouerCoupO(G):-check_end_game(G,J), write_winner(J),!.
-jouerCoupX(G):- write('Joueur x, entrez un numéro de colonne :'), nl,
+turn_x(G):-check_end_game(G,J), write_winner(J),!.
+turn_o(G):-check_end_game(G,J), write_winner(J),!.
+turn_x(G):- write('Joueur x, entrez un numéro de colonne :'), nl,
 				read(N), make_move(N,G, x, X, G),
 				afficherGrille(X),
 				write('\n'),
-				jouerCoupO(X).
-jouerCoupO(G):- write('Joueur o, entrez un numéro de colonne :'), nl,
+				turn_o(X).
+turn_o(G):- write('Joueur o, entrez un numéro de colonne :'), nl,
 				read(N), make_move(N,G, o, X, G),
 				afficherGrille(X),
 				write('\n'),
-				jouerCoupX(X).
+				turn_x(X).
 
 % Lancement du jeu : grille de d�part de 6*7 (vide). C'est le joueur 'o' qui commence, suivi par x, jusqu'� ce que l'un des deux gagne [ou GRILLE PLEINE]
-jouer:- jouerCoupO([[],[],[],[],[],[],[]]).
+play:- turn_o([[],[],[],[],[],[],[]]).
 
 %Un coup gagant est un coup qui mene à un état de jeu ou le joueur est vainqueur
-coupwrite_winner(C,G,J):- make_move_ia(1,G,J,N,G), check_end_game(N,J), C=1.
-coupwrite_winner(C,G,J):- make_move_ia(2,G,J,N,G), check_end_game(N,J), C=2.
-coupwrite_winner(C,G,J):- make_move_ia(3,G,J,N,G), check_end_game(N,J), C=3.
-coupwrite_winner(C,G,J):- make_move_ia(4,G,J,N,G), check_end_game(N,J), C=4.
-coupwrite_winner(C,G,J):- make_move_ia(5,G,J,N,G), check_end_game(N,J), C=5.
-coupwrite_winner(C,G,J):- make_move_ia(6,G,J,N,G), check_end_game(N,J), C=6.
-coupwrite_winner(C,G,J):- make_move_ia(7,G,J,N,G), check_end_game(N,J), C=7.
+winning_move(C,G,J):- make_move_ai(1,G,J,N,G), check_end_game(N,J), C=1.
+winning_move(C,G,J):- make_move_ai(2,G,J,N,G), check_end_game(N,J), C=2.
+winning_move(C,G,J):- make_move_ai(3,G,J,N,G), check_end_game(N,J), C=3.
+winning_move(C,G,J):- make_move_ai(4,G,J,N,G), check_end_game(N,J), C=4.
+winning_move(C,G,J):- make_move_ai(5,G,J,N,G), check_end_game(N,J), C=5.
+winning_move(C,G,J):- make_move_ai(6,G,J,N,G), check_end_game(N,J), C=6.
+winning_move(C,G,J):- make_move_ai(7,G,J,N,G), check_end_game(N,J), C=7.
 
 %Un coup perdant est un coup qui permet à l'adversaire de gagner
-coupPerdantIA(1,G):- make_move_ia(1,G,o,N,G), coupwrite_winner(_,N,x).
-coupPerdantIA(2,G):- make_move_ia(2,G,o,N,G), coupwrite_winner(_,N,x).
-coupPerdantIA(3,G):- make_move_ia(3,G,o,N,G), coupwrite_winner(_,N,x).
-coupPerdantIA(4,G):- make_move_ia(4,G,o,N,G), coupwrite_winner(_,N,x).
-coupPerdantIA(5,G):- make_move_ia(5,G,o,N,G), coupwrite_winner(_,N,x).
-coupPerdantIA(6,G):- make_move_ia(6,G,o,N,G), coupwrite_winner(_,N,x).
-coupPerdantIA(7,G):- make_move_ia(7,G,o,N,G), coupwrite_winner(_,N,x).
+losing_move(1,G):- make_move_ai(1,G,o,N,G), winning_move(_,N,x).
+losing_move(2,G):- make_move_ai(2,G,o,N,G), winning_move(_,N,x).
+losing_move(3,G):- make_move_ai(3,G,o,N,G), winning_move(_,N,x).
+losing_move(4,G):- make_move_ai(4,G,o,N,G), winning_move(_,N,x).
+losing_move(5,G):- make_move_ai(5,G,o,N,G), winning_move(_,N,x).
+losing_move(6,G):- make_move_ai(6,G,o,N,G), winning_move(_,N,x).
+losing_move(7,G):- make_move_ai(7,G,o,N,G), winning_move(_,N,x).
 
-jouerCoupJoueur(G):-check_end_game(G,J), write_winner(J),!.
-jouerIA(G):-check_end_game(G,J), write_winner(J),!.
+player_turn(G):-check_end_game(G,J), write_winner(J),!.
+ai_turn(G):-check_end_game(G,J), write_winner(J),!.
 
 %Si un coup permet de gagner il faut le jouer.
-jouerIA(G):-   coupwrite_winner(C,G,o), make_move_ia(C,G,o,X,G),
+ai_turn(G):-   winning_move(C,G,o), make_move_ai(C,G,o,X,G),
 			   afficherGrille(X),
 			   write('\n'),
-			   jouerCoupJoueur(X).
+			   player_turn(X).
 
 %Si un coup permet a l'adversaire de gagner on se défend(coup défensif).
-jouerIA(G):-   coupwrite_winner(C,G,x), make_move_ia(C,G,o,X,G),
+ai_turn(G):-   winning_move(C,G,x), make_move_ai(C,G,o,X,G),
 			   afficherGrille(X),
 			   write('\n'),
-			   jouerCoupJoueur(X).
+			   player_turn(X).
 
-jouerIA(0, G):- write('Pas de coup trouvé').
+ai_turn(0, G):- write('Pas de coup trouvé').
 
 
-jouerIA(C, G):- make_move_ia(C,G,o,X,G),
+ai_turn(C, G):- make_move_ai(C,G,o,X,G),
 			    afficherGrille(X),
 			    write('\n'),
-			    jouerCoupJoueur(X).
+			    player_turn(X).
 
-espaceRestant(1, [L|G], E, L):- lenght(L,N2), N3 is 6-N2, E=N3.
-espaceRestant(N, [T|X], E, L):- N > 0,
+space_left(1, [L|G], E, L):- lenght(L,N2), N3 is 6-N2, E=N3.
+space_left(N, [T|X], E, L):- N > 0,
 								N1 is N-1,
-								espaceRestant(N1, X, E, L).
+								space_left(N1, X, E, L).
 									
 %Si on a pas de coup immédiat on fait un coup au centre ou au plus près possible pour une victoire possible en verticale.
-jouerIA(G):- espaceRestant(4,G,E,L), end_of_list(L,o), E > 3, not(coupPerdantIA(4,G)), jouerIA(4,G).
-jouerIA(G):- espaceRestant(5,G,E,L), end_of_list(L,o), E > 3, not(coupPerdantIA(5,G)), jouerIA(5,G).
-jouerIA(G):- espaceRestant(3,G,E,L), end_of_list(L,o), E > 3, not(coupPerdantIA(3,G)), jouerIA(3,G).
-jouerIA(G):- espaceRestant(6,G,E,L), end_of_list(L,o), E > 3, not(coupPerdantIA(6,G)), jouerIA(6,G).
-jouerIA(G):- espaceRestant(2,G,E,L), end_of_list(L,o), E > 3, not(coupPerdantIA(2,G)), jouerIA(2,G).
-jouerIA(G):- espaceRestant(7,G,E,L), end_of_list(L,o), E > 3, not(coupPerdantIA(7,G)), jouerIA(7,G).
-jouerIA(G):- espaceRestant(1,G,E,L), end_of_list(L,o), E > 3, not(coupPerdantIA(1,G)), jouerIA(1,G).
+ai_turn(G):- space_left(4,G,E,L), end_of_list(L,o), E > 3, not(losing_move(4,G)), ai_turn(4,G).
+ai_turn(G):- space_left(5,G,E,L), end_of_list(L,o), E > 3, not(losing_move(5,G)), ai_turn(5,G).
+ai_turn(G):- space_left(3,G,E,L), end_of_list(L,o), E > 3, not(losing_move(3,G)), ai_turn(3,G).
+ai_turn(G):- space_left(6,G,E,L), end_of_list(L,o), E > 3, not(losing_move(6,G)), ai_turn(6,G).
+ai_turn(G):- space_left(2,G,E,L), end_of_list(L,o), E > 3, not(losing_move(2,G)), ai_turn(2,G).
+ai_turn(G):- space_left(7,G,E,L), end_of_list(L,o), E > 3, not(losing_move(7,G)), ai_turn(7,G).
+ai_turn(G):- space_left(1,G,E,L), end_of_list(L,o), E > 3, not(losing_move(1,G)), ai_turn(1,G).
 
 %Sinon jouer au plus près du centre quand même.
-jouerIA(G):- jouerIA(4,G),not(coupPerdantIA(4,G)).
-jouerIA(G):- jouerIA(5,G),not(coupPerdantIA(5,G)).
-jouerIA(G):- jouerIA(3,G),not(coupPerdantIA(3,G)).
-jouerIA(G):- jouerIA(6,G),not(coupPerdantIA(6,G)).
-jouerIA(G):- jouerIA(2,G),not(coupPerdantIA(2,G)).
-jouerIA(G):- jouerIA(7,G),not(coupPerdantIA(7,G)).
-jouerIA(G):- jouerIA(1,G),not(coupPerdantIA(1,G)).
+ai_turn(G):- ai_turn(4,G),not(losing_move(4,G)).
+ai_turn(G):- ai_turn(5,G),not(losing_move(5,G)).
+ai_turn(G):- ai_turn(3,G),not(losing_move(3,G)).
+ai_turn(G):- ai_turn(6,G),not(losing_move(6,G)).
+ai_turn(G):- ai_turn(2,G),not(losing_move(2,G)).
+ai_turn(G):- ai_turn(7,G),not(losing_move(7,G)).
+ai_turn(G):- ai_turn(1,G),not(losing_move(1,G)).
 
 %Déblocage de situation
-jouerIA(G):- jouerIA(4,G).
-jouerIA(G):- jouerIA(5,G).
-jouerIA(G):- jouerIA(3,G).
-jouerIA(G):- jouerIA(6,G).
-jouerIA(G):- jouerIA(2,G).
-jouerIA(G):- jouerIA(7,G).
-jouerIA(G):- jouerIA(1,G).
-jouerIA(G):- jouerIA(0,G).
+ai_turn(G):- ai_turn(4,G).
+ai_turn(G):- ai_turn(5,G).
+ai_turn(G):- ai_turn(3,G).
+ai_turn(G):- ai_turn(6,G).
+ai_turn(G):- ai_turn(2,G).
+ai_turn(G):- ai_turn(7,G).
+ai_turn(G):- ai_turn(1,G).
+ai_turn(G):- ai_turn(0,G).
 
-jouerCoupJoueur(G):- write('Joueur x, entrez un numéro de colonne :'), nl,
+player_turn(G):- write('Joueur x, entrez un numéro de colonne :'), nl,
 				read(N), make_move_player(N,G, x, X, G),
 				afficherGrille(X),
 				write('\n'),
-				jouerIA(X).
+				ai_turn(X).
 
-lancerIA:- jouerIA([[],[],[],[],[],[],[]]).
+play_ai:- ai_turn([[],[],[],[],[],[],[]]).
 
-enregistrerCoupArbre(1, [L|G], J, [[J|L]|G]):- lenght(L,N), N < 6.
+/*enregistrerCoupArbre(1, [L|G], J, [[J|L]|G]):- lenght(L,N), N < 6.
 enregistrerCoupArbre(N, [T|X], J, [T|G]):- 	N > 0,
 										N1 is N-1,
-										enregistrerCoupArbre(N1, X, J, G).
+										enregistrerCoupArbre(N1, X, J, G).*/
 % Evaluation de la grille de jeu
 /* Paramètres : G grille, J joueur */
-evalVert([], _, P, X):- X=P, write(fini).										
+/*evalVert([], _, P, X):- X=P, write(fini).										
 evalVert([L|G],J, P, X):- 	sublist([J,J,J,J], L),
 							evalVert(G, J, P, 4, X).
 evalVert([L|G],J, P, X):- 	sublist([J,J,J], L),
@@ -237,10 +237,10 @@ evalVert([L|G],J, P, X):- 	sublist([J,J], L),
 evalVert([L|G],J, P, X):- evalVert(G, J, P, 1, X).
 evalVert(G,J, P1, P2, X):- 	max(P1, P2, P),
 							evalVert(G, J, P, X).
-evalVert(G, J, X):- evalVert(G,J, 0, 1, X).
+evalVert(G, J, X):- evalVert(G,J, 0, 1, X).*/
 
 /* Paramètres : N numéro de la ligne à partir duquel on traite, G grille, J joueur */
-evalHor(_,[],J,P):- write(fini).
+/*evalHor(_,[],J,P):- write(fini).
 evalHor(N, G, J, P):- maplist(get_element_from_index(N), G, L), 
 					 sublist([J,J,J,J],L),
 					 evalHor(N, G, J, P, 4).
@@ -263,7 +263,7 @@ evalHor(G,J,P):- evalHor(6, G, J, 0, 1).
 
 evalGrille(G, J, X) :- evalHor(G,J,P1),
 					evalVert(G, J, P2),	
-					max(P1,P2, X).								
+					max(P1,P2, X).		*/						
 										
 /* Paramètres : G grille, J joueur, P profondeur, A arbre obtenu */
 /*tracerArbre(G, J, 0, A).

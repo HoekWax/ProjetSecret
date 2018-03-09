@@ -45,18 +45,18 @@ get_element_from_index(N, L, X):- nth1(N, L, X).
 
 % Fonction qui enregistre un coup jou� dans la grille
 /* Param�tres : N num�ro de la colonne dans laquelle J joue, G grille, J joueur, G' nouvelle grille */		
-make_move(1, [L|G], x, _, I):- lenght(L,N), N >= 6, write('Coup Invalide\n'), turn_x(I).
-make_move(1, [L|G], o, _, I):- lenght(L,N), N >= 6, write('Coup Invalide\n'), turn_o(I).
+make_move(1, [L|G], x, _, I):- lenght(L,N), N >= 6, write('Impossible de jouer ce coup\n'), turn_x(I).
+make_move(1, [L|G], o, _, I):- lenght(L,N), N >= 6, write('Impossible de jouer ce coup\n'), turn_o(I).
 make_move(1, [L|G], J, F, I):- lenght(L,N), N < 6, add_to_end(J,L,M), F=[M|G].
-make_move(N, [L|G], x, _, I):- N > 7, write('Coup Invalide\n'), turn_x(I).
-make_move(N, [L|G], o, _, I):- N > 7, write('Coup Invalide\n'), turn_o(I).
+make_move(N, [L|G], x, _, I):- N > 7, write('Impossible de jouer ce coup\n'), turn_x(I).
+make_move(N, [L|G], o, _, I):- N > 7, write('Impossible de jouer ce coup\n'), turn_o(I).
 make_move(N, [T|X], J, [T|G], I):- 	N > 0,
 										N1 is N-1,
 										make_move(N1, X, J, G, I).
 					
-make_move_player(1, [L|G], x, _, I):- lenght(L,N), N >= 6, write('Coup Invalide\n'), player_turn(I).
+make_move_player(1, [L|G], x, _, I):- lenght(L,N), N >= 6, write('Impossible de jouer ce coup\n'), player_turn(I).
 make_move_player(1, [L|G], J, F, I):- lenght(L,N), N < 6, add_to_end(J,L,M), F=[M|G].
-make_move_player(N, [L|G], x, _, I):- N > 7, write('Coup Invalide\n'), player_turn(I).	
+make_move_player(N, [L|G], x, _, I):- N > 7, write('Impossible de jouer ce coup\n'), player_turn(I).	
 make_move_player(N, [T|X], J, [T|G], I):- 	N > 0,
 										N1 is N-1,
 										make_move_player(N1, X, J, G, I).
@@ -120,20 +120,20 @@ check_end_game(G, J):- check_end_game_diagonally(G,o), J=o.
 
 % Affichage du gagnant
 /* Param�tres : J joueur */
-write_winner(J):-write('Le Joueur '), write(J), write(' a gagné !').
+write_winner(J):-write('Le gagnant est '), write(J).
 
 /* Param�tres : G grille*/
 turn_x(G):-check_end_game(G,J), write_winner(J),!.
 turn_o(G):-check_end_game(G,J), write_winner(J),!.
-turn_x(G):- write('Joueur x, entrez un numéro de colonne :'), nl,
+turn_x(G):- write('Au tour de x ->'), nl,
 				read(N), make_move(N,G, x, X, G),
-				afficherGrille(X),
-				write('\n'),
+				print_board(X),
+				nl,
 				turn_o(X).
-turn_o(G):- write('Joueur o, entrez un numéro de colonne :'), nl,
+turn_o(G):- write('Au tour de o ->'), nl,
 				read(N), make_move(N,G, o, X, G),
-				afficherGrille(X),
-				write('\n'),
+				print_board(X),
+				nl,
 				turn_x(X).
 
 % Lancement du jeu : grille de d�part de 6*7 (vide). C'est le joueur 'o' qui commence, suivi par x, jusqu'� ce que l'un des deux gagne [ou GRILLE PLEINE]
@@ -162,22 +162,22 @@ ai_turn(G):-check_end_game(G,J), write_winner(J),!.
 
 %Si un coup permet de gagner il faut le jouer.
 ai_turn(G):-   winning_move(C,G,o), make_move_ai(C,G,o,X,G),
-			   afficherGrille(X),
-			   write('\n'),
+			   print_board(X),
+			   nl,
 			   player_turn(X).
 
 %Si un coup permet a l'adversaire de gagner on se défend(coup défensif).
 ai_turn(G):-   winning_move(C,G,x), make_move_ai(C,G,o,X,G),
-			   afficherGrille(X),
-			   write('\n'),
+			   print_board(X),
+			   nl,
 			   player_turn(X).
 
-ai_turn(0, G):- write('Pas de coup trouvé').
+ai_turn(0, G):- write('Aucune possibilité de jeu n'a été trouvée).
 
 
 ai_turn(C, G):- make_move_ai(C,G,o,X,G),
-			    afficherGrille(X),
-			    write('\n'),
+			    print_board(X),
+			    nl,
 			    player_turn(X).
 
 space_left(1, [L|G], E, L):- lenght(L,N2), N3 is 6-N2, E=N3.
@@ -213,87 +213,26 @@ ai_turn(G):- ai_turn(7,G).
 ai_turn(G):- ai_turn(1,G).
 ai_turn(G):- ai_turn(0,G).
 
-player_turn(G):- write('Joueur x, entrez un numéro de colonne :'), nl,
+player_turn(G):- write('Au tour de x ->'), nl,
 				read(N), make_move_player(N,G, x, X, G),
-				afficherGrille(X),
-				write('\n'),
+				print_board(X),
+				nl,
 				ai_turn(X).
 
 play_ai:- ai_turn([[],[],[],[],[],[],[]]).
 
-/*enregistrerCoupArbre(1, [L|G], J, [[J|L]|G]):- lenght(L,N), N < 6.
-enregistrerCoupArbre(N, [T|X], J, [T|G]):- 	N > 0,
-										N1 is N-1,
-										enregistrerCoupArbre(N1, X, J, G).*/
-% Evaluation de la grille de jeu
-/* Paramètres : G grille, J joueur */
-/*evalVert([], _, P, X):- X=P, write(fini).										
-evalVert([L|G],J, P, X):- 	sublist([J,J,J,J], L),
-							evalVert(G, J, P, 4, X).
-evalVert([L|G],J, P, X):- 	sublist([J,J,J], L),
-							evalVert(G, J, P, 3, X).
-evalVert([L|G],J, P, X):- 	sublist([J,J], L),
-							evalVert(G, J, P, 2, X).
-evalVert([L|G],J, P, X):- evalVert(G, J, P, 1, X).
-evalVert(G,J, P1, P2, X):- 	max(P1, P2, P),
-							evalVert(G, J, P, X).
-evalVert(G, J, X):- evalVert(G,J, 0, 1, X).*/
-
-/* Paramètres : N numéro de la ligne à partir duquel on traite, G grille, J joueur */
-/*evalHor(_,[],J,P):- write(fini).
-evalHor(N, G, J, P):- maplist(get_element_from_index(N), G, L), 
-					 sublist([J,J,J,J],L),
-					 evalHor(N, G, J, P, 4).
-evalHor(N, G, J, P):- maplist(get_element_from_index(N), G, L), 
-					 sublist([J,J,J],L),
-					 evalHor(N, G, J, P, 3).
-evalHor(N, G, J, P):- maplist(get_element_from_index(N), G, L), 
-					 sublist([J,J],L),
-					 evalHor(N, G, J, P, 2).
-evalHor(N, G, J, P):- maplist(get_element_from_index(N), G, L), 
-					 sublist([J],L),
-					 evalHor(N, G, J, P, 1).
-evalHor(N, G, J, P1, P2):- N > 0,
-					 N1 is N-1,
-					 write(toto),
-					 max(P1, P2, P),
-					 evalHor(N1, G, J, P),
-					 write(P).
-evalHor(G,J,P):- evalHor(6, G, J, 0, 1).
-
-evalGrille(G, J, X) :- evalHor(G,J,P1),
-					evalVert(G, J, P2),	
-					max(P1,P2, X).		*/						
-										
-/* Paramètres : G grille, J joueur, P profondeur, A arbre obtenu */
-/*tracerArbre(G, J, 0, A).
-tracerArbre(G, J, P, A):- P > 0,
-					      P1 is P-1,
-						  tracerBranche(G, J, P1, A, 7).
-
-tracerBranche(G, J, P, A, 1).						  
-tracerBranche(G, x, P, A, N):- N > 0,
-							   N1 is N-1,
-							   enregistrerCoupArbre(N, G, x, X), 
-							   tracerArbre(X, o, P, A),
-							   tracerBranche(G, x, P, A, N1).			
-tracerBranche(G, o, P, A, N):- N > 0,
-							   N1 is N-1,
-							   enregistrerCoupArbre(N, G, o, X), 
-							   tracerArbre(X, x, P, A),
-							   tracerBranche(G, o, P, A, N1).*/
-afficherGrille(_,0).							   
-afficherGrille(G, N):-	 N > 0,
+print_board(_,0).							   
+print_board(G, N):-	 N > 0,
 						N1 is N-1,
 						maplist(get_element_from_index(N), G, L),
-						afficherListe(L),
-						afficherGrille(G, N1).
+						print_list(L),
+						print_board(G, N1).
 
-afficherGrille(G):- afficherGrille(G,6).
+print_board(G):- print_board(G,6).
  
-afficherListe([]):- write('|\n').
-afficherListe([E|L]):-  write('|'), 
-						afficherElement(E),
-						afficherListe(L).
-afficherElement([]):- write(' '),!.
-afficherElement(E):- write(E).
+print_list([]):- write('|'), nl.
+print_list([E|L]):-  write('|'), 
+						print_element(E),
+						print_list(L).
+print_element([]):- write(' '),!.
+print_element(E):- write(E).

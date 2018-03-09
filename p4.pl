@@ -5,6 +5,8 @@
 % lancerIA. et jouer. à renommer en 1v1 et 1vIA par exemple. pour le 1v1, afficher la grille vide au début
 % Quand l'ia gagne, la game continue, A FIXER
 
+% Fichiers : Check_fin_game, print.pl, AI.pl, utils.pls, player.pl
+
 % Quand on arrive à impossible de jouer ce coupc ou ce genre de chose ça nique tout pour l'affichage du
 % ctrl f et tt remplacer
 % OK - Changer tous les texte (celui ci à gagné, c'est à lui de jouer etc)
@@ -13,7 +15,7 @@
 % Diviser en plusieurs fichier (un main, un setup etats etc, fonctions utiles (ajouter fin de liste), affichage de grille, evaluation de la fin du jeu).
 % OK - Revoir l'affichage de la grille et mettre les numero de lignes, refaire tous les commentaires
 % Refaire tous les commentaires
-% OK -n renommer les fonctions en anglais (play_game_o etc)
+% OK - renommer les fonctions en anglais (play_game_o etc)
 % renommer les variables (L en LIST, G en BOARD)
 % réorganiser les blocs de code
 % VIRER TOUS LES WARNING
@@ -21,33 +23,29 @@
 % Voir comment marche l'IA, min/max ou hill climbbing ou autre
 
 
-% Fonction qui permet d'ajouter un élément en fin de liste
-add_to_end(X,[],[X]).
-add_to_end(X,[Y|L1],[Y|L2]):- add_to_end(X,L1,L2).
+% add_to_end/3 ajoute une valeur à la fin d'une liste (Params : 1er = valeur, 2e = liste, 3e = liste retournée)
+add_to_end(X,Y,Z) :- append(Y,[X],Z).
 
+% end_of_list/2 vérifie que le dernier élément de L est égal à E (Params : L = liste, E = élément)
 end_of_list([], _).
 end_of_list(L, E):- last(L,E).
 
-% Fonction qui renvoie une sous-liste à partir d'une liste L
-/* Param�tres : S sous-liste, L liste */
+% sublist/2 retourne une sous-liste de L (Params : S = sous-liste, L = liste)
 prefix(P,L):-append(P,_,L).
 sublist(S,L):-prefix(S,L).
 sublist(S,[_|T]):-sublist(S,T).
 
-% Fonction qui retourne la lenght d'une liste
-/* Paramètres : L liste, N lenght de la liste */
+
+% lenght/2 retourne la longueur de la liste L (Params : L = liste, N = longueur)
 lenght([],0).
 lenght([_|L],N):- lenght(L,N1),
 					N is N1+1.
 
-% Fonction qui renvoie le ni�me �l�ment d'une liste 
-/* Param�tres : N index de l'�lement qu'on veut r�cup�rer, L liste, X �l�ment retourn� */
-get_element_from_index(N, L, []):- lenght(L, N1), N1 < N.
-get_element_from_index(N, L, X):- nth1(N, L, X).				
+% get_element_from_index/3 retourne l'élément d'une liste à partir d'un index donné (Params : IDX = index, L = liste, E = élément)
+get_element_from_index(IDX, L, []):- lenght(L, N1), N1 < IDX.
+get_element_from_index(IDX, L, E):- nth1(IDX, L, E).
 
-
-% Fonction qui enregistre un coup jou� dans la grille
-/* Param�tres : N num�ro de la colonne dans laquelle J joue, G grille, J joueur, G' nouvelle grille */		
+% make_move/5 est pour le mode 1 contre 1 et garde en mémoire le coup qui vient d'être joué et affiche une erreur si nécessaire (Params : 1er = colone, 2e = grille, 3e = joueur, 4e = nouvelle grille, 5e = grille de sauvegarde)	
 make_move(1, [L|G], x, _, I):- lenght(L,N), N >= 6, print_impossible_move(), turn_x(I).
 make_move(1, [L|G], o, _, I):- lenght(L,N), N >= 6, print_impossible_move(), turn_o(I).
 make_move(1, [L|G], J, F, I):- lenght(L,N), N < 6, add_to_end(J,L,M), F=[M|G].
@@ -56,7 +54,8 @@ make_move(N, [L|G], o, _, I):- N > 7, print_impossible_move(), turn_o(I).
 make_move(N, [T|X], J, [T|G], I):- 	N > 0,
 									N1 is N-1,
 									make_move(N1, X, J, G, I).
-					
+
+% make_move_player/5 est pour le mode contre l'ia et garde en mémoire le coup qui vient d'être joué par le joueur et affiche une erreur si nécessaire (Params : Les mêmes que make_move/5)
 make_move_player(1, [L|G], x, _, I):- lenght(L,N), N >= 6, print_impossible_move(), player_turn(I).
 make_move_player(1, [L|G], J, F, I):- lenght(L,N), N < 6, add_to_end(J,L,M), F=[M|G].
 make_move_player(N, [L|G], x, _, I):- N > 7, print_impossible_move(), player_turn(I).	
@@ -64,17 +63,18 @@ make_move_player(N, [T|X], J, [T|G], I):- 	N > 0,
 											N1 is N-1,
 											make_move_player(N1, X, J, G, I).
 
+% make_move_ai/5 est pour le mode contre l'ia et garde en mémoire le coup qui vient d'être joué par l'ia et affiche une erreur si nécessaire (Params : Les mêmes que make_move/5)
 make_move_ai(1, [L|G], J, F, I):- lenght(L,N), N < 6, add_to_end(J,L,M), F=[M|G].
 make_move_ai(N, [T|X], J, [T|G], I):- 	N > 0,
 										N1 is N-1,
 										make_move_ai(N1, X, J, G, I).
-% Condition de victoire verticale : 4 jetons les uns après les autres sur une même colonne
-/* Param�tres : G grille, J joueur */										
+
+% check_end_game_vertically/2 vérifie si 4 valeurs sont les mêmes verticalement (Params : 1er = grille, J = joueur)
 check_end_game_vertically([L|_],J):- sublist([J,J,J,J], L),!.
 check_end_game_vertically([_|G],J):- check_end_game_vertically(G,J).
 
-% Condition de victoire horizontale : 4 jetons les uns après les autres sur une même ligne
-/* Param�tres : N num�ro de la ligne � partir duquel on traite, G grille, J joueur */
+
+% check_end_game_horizontally/2 vérifie si 4 valeurs sont les mêmes horizontalement (Params : 1er = grille, J = joueur)
 check_end_game_horizontally(N, G, J):- 	maplist(get_element_from_index(N), G, L), 
 										sublist([J,J,J,J],L),!.
 check_end_game_horizontally(N, G, J):-	N > 0,
@@ -82,6 +82,8 @@ check_end_game_horizontally(N, G, J):-	N > 0,
 										check_end_game_horizontally(N1, G, J).
 
 check_end_game_horizontally(G,J):- check_end_game_horizontally(6, G, J).				 
+
+
 
 check_end_game_diagonally_2(G,D,J,0):- sublist([J,J,J,J],D).
 check_end_game_diagonally_2(G,D,J,N):-	N > 0,
@@ -191,30 +193,30 @@ space_left(N, [T|X], E, L):- N > 0,
 									
 %Si on a pas de coup immédiat on fait un coup au centre ou au plus près possible pour une victoire possible en verticale.
 turn_ai(G):- space_left(4,G,E,L), end_of_list(L,o), E > 3, not(losing_move(4,G)), turn_ai(4,G).
-turn_ai(G):- space_left(5,G,E,L), end_of_list(L,o), E > 3, not(losing_move(5,G)), turn_ai(5,G).
-turn_ai(G):- space_left(3,G,E,L), end_of_list(L,o), E > 3, not(losing_move(3,G)), turn_ai(3,G).
-turn_ai(G):- space_left(6,G,E,L), end_of_list(L,o), E > 3, not(losing_move(6,G)), turn_ai(6,G).
-turn_ai(G):- space_left(2,G,E,L), end_of_list(L,o), E > 3, not(losing_move(2,G)), turn_ai(2,G).
-turn_ai(G):- space_left(7,G,E,L), end_of_list(L,o), E > 3, not(losing_move(7,G)), turn_ai(7,G).
-turn_ai(G):- space_left(1,G,E,L), end_of_list(L,o), E > 3, not(losing_move(1,G)), turn_ai(1,G).
+turn_ai(G):- space_left(3,G,E,L), end_of_list(L,o), E > 3, not(losing_move(5,G)), turn_ai(5,G).
+turn_ai(G):- space_left(5,G,E,L), end_of_list(L,o), E > 3, not(losing_move(3,G)), turn_ai(3,G).
+turn_ai(G):- space_left(2,G,E,L), end_of_list(L,o), E > 3, not(losing_move(6,G)), turn_ai(6,G).
+turn_ai(G):- space_left(6,G,E,L), end_of_list(L,o), E > 3, not(losing_move(2,G)), turn_ai(2,G).
+turn_ai(G):- space_left(1,G,E,L), end_of_list(L,o), E > 3, not(losing_move(7,G)), turn_ai(7,G).
+turn_ai(G):- space_left(7,G,E,L), end_of_list(L,o), E > 3, not(losing_move(1,G)), turn_ai(1,G).
 
 %Sinon jouer au plus près du centre quand même.
 turn_ai(G):- turn_ai(4,G),not(losing_move(4,G)).
-turn_ai(G):- turn_ai(5,G),not(losing_move(5,G)).
-turn_ai(G):- turn_ai(3,G),not(losing_move(3,G)).
-turn_ai(G):- turn_ai(6,G),not(losing_move(6,G)).
-turn_ai(G):- turn_ai(2,G),not(losing_move(2,G)).
-turn_ai(G):- turn_ai(7,G),not(losing_move(7,G)).
-turn_ai(G):- turn_ai(1,G),not(losing_move(1,G)).
+turn_ai(G):- turn_ai(3,G),not(losing_move(5,G)).
+turn_ai(G):- turn_ai(5,G),not(losing_move(3,G)).
+turn_ai(G):- turn_ai(2,G),not(losing_move(6,G)).
+turn_ai(G):- turn_ai(6,G),not(losing_move(2,G)).
+turn_ai(G):- turn_ai(1,G),not(losing_move(7,G)).
+turn_ai(G):- turn_ai(7,G),not(losing_move(1,G)).
 
 %Déblocage de situation
 turn_ai(G):- turn_ai(4,G).
-turn_ai(G):- turn_ai(5,G).
 turn_ai(G):- turn_ai(3,G).
-turn_ai(G):- turn_ai(6,G).
+turn_ai(G):- turn_ai(5,G).
 turn_ai(G):- turn_ai(2,G).
-turn_ai(G):- turn_ai(7,G).
+turn_ai(G):- turn_ai(6,G).
 turn_ai(G):- turn_ai(1,G).
+turn_ai(G):- turn_ai(7,G).
 turn_ai(G):- turn_ai(0,G).
 
 player_turn(G):- print_turn_x(),
@@ -241,12 +243,12 @@ print_impossible_move:- write('Impossible de jouer ce coup'), nl.
 print_ai_move(C):- write('L\'IA joue en '), write(C), nl, nl.
 
 print_board(_,0).							   
-print_board(G, N):-	 N > 0,
-						N1 is N-1,
-						maplist(get_element_from_index(N), G, L),
-						print_list(L),
-						print_separator(),
-						print_board(G, N1).
+print_board(G, N):-	N > 0,
+					N1 is N-1,
+					maplist(get_element_from_index(N), G, L),
+					print_list(L),
+					print_separator(),
+					print_board(G, N1).
 
 print_board(G):- print_column_numbers(), print_board(G,6).
 

@@ -2,25 +2,23 @@
 
 % affichage de grille https://github.com/piclemx/ift-2003/blob/master/tp2/nouvelleGrille.pl
 
-% lancerIA. et jouer. à renommer en 1v1 et 1vIA par exemple. pour le 1v1, afficher la grille vide au début
-% Quand l'ia gagne, la game continue, A FIXER
+% OK - ctrl f et tt remplacer
+% OK - Changer tous les texte (celui ci à gagné, c'est à lui de jouer etc)
+% OK - Voir les fonctions heurstiques (pourquoi faire un move et pas un autre pour win par exemple, voir la valeur des coups)
+% OK - Mettre la page de garde de marketing sur le drive
+% OK - Revoir l'affichage de la grille et mettre les numero de lignes, refaire tous les commentaires
+% OK - Refaire tous les commentaires
+% OK - renommer les fonctions en anglais (play_game_o etc)
+% OK - Afficher la colonne à laquelle l'IA joue (ex: IA a joué o sur la colonne 3.)
+% OK - Voir comment marche l'IA, min/max ou hill climbbing ou autre
 
 % Fichiers : Check_fin_game, print.pl, AI.pl, utils.pls, player.pl
-
-% Quand on arrive à impossible de jouer ce coupc ou ce genre de chose ça nique tout pour l'affichage du
-% ctrl f et tt remplacer
-% OK - Changer tous les texte (celui ci à gagné, c'est à lui de jouer etc)
-% Voir les fonctions heurstiques (pourquoi faire un move et pas un autre pour win par exemple, voir la valeur des coups)
-% OK - Mettre la page de garde de marketing sur le drive
-% Diviser en plusieurs fichier (un main, un setup etats etc, fonctions utiles (ajouter fin de liste), affichage de grille, evaluation de la fin du jeu).
-% OK - Revoir l'affichage de la grille et mettre les numero de lignes, refaire tous les commentaires
-% Refaire tous les commentaires
-% OK - renommer les fonctions en anglais (play_game_o etc)
+% Quand l'ia gagne, la game continue, A FIXER
+% Quand on arrive à impossible de jouer ce coup ou ce genre de chose ça nique tout pour l'affichage du jeu
 % renommer les variables (L en LIST, G en BOARD)
 % réorganiser les blocs de code
 % VIRER TOUS LES WARNING
-% Afficher la colonne à laquelle l'IA joue (ex: IA a joué o sur la colonne 3.)
-% Voir comment marche l'IA, min/max ou hill climbbing ou autre
+% Diviser en plusieurs fichier (un main, un setup etats etc, fonctions utiles (ajouter fin de liste), affichage de grille, evaluation de la fin du jeu).
 
 
 % add_to_end/3 ajoute une valeur à la fin d'une liste (Params : 1er = valeur, 2e = liste, 3e = liste retournée)
@@ -52,7 +50,7 @@ make_move(1, [L|G], J, F, I):- lenght(L,N), N < 6, add_to_end(J,L,M), F=[M|G].
 make_move(N, [L|G], x, _, I):- N > 7, print_impossible_move(), turn_x(I).
 make_move(N, [L|G], o, _, I):- N > 7, print_impossible_move(), turn_o(I).
 make_move(N, [T|X], J, [T|G], I):- 	N > 0,
-									N1 is N-1,
+									N1 is N - 1,
 									make_move(N1, X, J, G, I).
 
 % make_move_player/5 est pour le mode contre l'ia et garde en mémoire le coup qui vient d'être joué par le joueur et affiche une erreur si nécessaire (Params : Les mêmes que make_move/5)
@@ -60,13 +58,13 @@ make_move_player(1, [L|G], x, _, I):- lenght(L,N), N >= 6, print_impossible_move
 make_move_player(1, [L|G], J, F, I):- lenght(L,N), N < 6, add_to_end(J,L,M), F=[M|G].
 make_move_player(N, [L|G], x, _, I):- N > 7, print_impossible_move(), player_turn(I).	
 make_move_player(N, [T|X], J, [T|G], I):- 	N > 0,
-											N1 is N-1,
+											N1 is N - 1,
 											make_move_player(N1, X, J, G, I).
 
 % make_move_ai/5 est pour le mode contre l'ia et garde en mémoire le coup qui vient d'être joué par l'ia et affiche une erreur si nécessaire (Params : Les mêmes que make_move/5)
 make_move_ai(1, [L|G], J, F, I):- lenght(L,N), N < 6, add_to_end(J,L,M), F=[M|G].
 make_move_ai(N, [T|X], J, [T|G], I):- 	N > 0,
-										N1 is N-1,
+										N1 is N - 1,
 										make_move_ai(N1, X, J, G, I).
 
 % check_end_game_vertically/2 vérifie si 4 valeurs sont les mêmes verticalement (Params : 1er = grille, J = joueur)
@@ -74,43 +72,43 @@ check_end_game_vertically([L|_],J):- sublist([J,J,J,J], L),!.
 check_end_game_vertically([_|G],J):- check_end_game_vertically(G,J).
 
 
-% check_end_game_horizontally/2 vérifie si 4 valeurs sont les mêmes horizontalement (Params : 1er = grille, J = joueur)
 check_end_game_horizontally(N, G, J):- 	maplist(get_element_from_index(N), G, L), 
 										sublist([J,J,J,J],L),!.
 check_end_game_horizontally(N, G, J):-	N > 0,
-										N1 is N-1,
+										N1 is N - 1,
 										check_end_game_horizontally(N1, G, J).
 
+% check_end_game_horizontally/2 vérifie si 4 valeurs sont les mêmes horizontalement (Params : 1er = grille, J = joueur)
 check_end_game_horizontally(G,J):- check_end_game_horizontally(6, G, J).				 
 
-% check_end_game_diagonally/2 vérifie si 4 valeurs sont les mêmes en diagonale (Params : G = grille, J = joueur)
-check_end_game_diagonally_2(G,D,J,0):- sublist([J,J,J,J],D).
-check_end_game_diagonally_2(G,D,J,N):-	N > 0,
-										maplist(get_element_from_index(N), G, L),
-										get_element_from_index(N,L,E),
-										N1 is N-1,
-										check_end_game_diagonally_2(G,[E|D],J,N1).
+check_end_game_diagonally_second(G,D,J,0):- sublist([J,J,J,J],D).
+check_end_game_diagonally_second(G,D,J,N):-	N > 0,
+											maplist(get_element_from_index(N), G, L),
+											get_element_from_index(N,L,E),
+											N1 is N - 1,
+											check_end_game_diagonally_second(G,[E|D],J,N1).
 
-check_end_game_diagonally_2(G,J):- check_end_game_diagonally_2(G,[],J,6).
+check_end_game_diagonally_second(G,J):- check_end_game_diagonally_second(G,[],J,6).
 
-check_end_game_diagonally_1(G,D,J,0):- sublist([J,J,J,J],D).
-check_end_game_diagonally_1(G,D,J,N):-	N > 0,
-										maplist(get_element_from_index(N), G, L),
-										N2 is 7-N,
-										get_element_from_index(N2,L,E),
-										N1 is N-1,
-										check_end_game_diagonally_1(G,[E|D],J,N1).
+check_end_game_diagonally_first(G,D,J,0):- sublist([J,J,J,J],D).
+check_end_game_diagonally_first(G,D,J,N):-	N > 0,
+											maplist(get_element_from_index(N), G, L),
+											N2 is 7 - N,
+											get_element_from_index(N2,L,E),
+											N1 is N - 1,
+											check_end_game_diagonally_first(G,[E|D],J,N1).
 
-check_end_game_diagonally_1(G,J):- check_end_game_diagonally_1(G,[],J,6).
+check_end_game_diagonally_first(G,J):- check_end_game_diagonally_first(G,[],J,6).
 
 
-check_end_game_diagonally(G,N,X,J):- check_end_game_diagonally_1(X,J),!.
-check_end_game_diagonally(G,N,X,J):- check_end_game_diagonally_2(X,J),!.
+check_end_game_diagonally(G,N,X,J):- check_end_game_diagonally_first(X,J),!.
+check_end_game_diagonally(G,N,X,J):- check_end_game_diagonally_second(X,J),!.
 check_end_game_diagonally(G,N,X,J):-	N < 7,
 										maplist(get_element_from_index(N), G, L),
-										N1 is N+1,
+										N1 is N + 1,
 										check_end_game_diagonally(G,N1,[L|X],J).
 
+% check_end_game_diagonally/2 vérifie si 4 valeurs sont les mêmes en diagonale (Params : G = grille, J = joueur)
 check_end_game_diagonally(G,J):- check_end_game_diagonally(G,1,[],J).
 
 % check_end_game/2 vérifie pour chaque joueur si il a gagné (Params : G = grille, J = joueur gagnant retourné)
@@ -238,7 +236,7 @@ print_winner(J):-write('Le gagnant est '), write(J).
 print_turn_x:- write('Au tour de x ->'), nl.
 print_turn_o:- write('Au tour de o ->'), nl.
 
-print_no_move_available:- write('Aucune possibilité de jeu n'a été trouvée), nl.
+print_no_move_available:- write('Aucune possibilité de jeu n\'a été trouvée'), nl.
 
 print_impossible_move:- write('Impossible de jouer ce coup'), nl.
 

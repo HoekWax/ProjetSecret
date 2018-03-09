@@ -73,7 +73,7 @@ check_end_game_vertically([_|G],J):- check_end_game_vertically(G,J).
 
 
 check_end_game_horizontally(N, G, J):- 	maplist(get_element_from_index(N), G, L), 
-										sublist([J,J,J,J],L),!.
+		             					sublist([J,J,J,J],L),!.
 check_end_game_horizontally(N, G, J):-	N > 0,
 										N1 is N - 1,
 										check_end_game_horizontally(N1, G, J).
@@ -81,7 +81,7 @@ check_end_game_horizontally(N, G, J):-	N > 0,
 % check_end_game_horizontally/2 vérifie si 4 valeurs sont les mêmes horizontalement (Params : 1er = grille, J = joueur)
 check_end_game_horizontally(G,J):- check_end_game_horizontally(6, G, J).				 
 
-check_end_game_diagonally_second(G,D,J,0):- sublist([J,J,J,J],D).
+check_end_game_diagonally_second(G,D,J,0):- write(D), nl, sublist([J,J,J,J],D).
 check_end_game_diagonally_second(G,D,J,N):-	N > 0,
 											maplist(get_element_from_index(N), G, L),
 											get_element_from_index(N,L,E),
@@ -90,7 +90,7 @@ check_end_game_diagonally_second(G,D,J,N):-	N > 0,
 
 check_end_game_diagonally_second(G,J):- check_end_game_diagonally_second(G,[],J,6).
 
-check_end_game_diagonally_first(G,D,J,0):- sublist([J,J,J,J],D).
+check_end_game_diagonally_first(G,D,J,0):-  sublist([J,J,J,J],D).
 check_end_game_diagonally_first(G,D,J,N):-	N > 0,
 											maplist(get_element_from_index(N), G, L),
 											N2 is 7 - N,

@@ -12,11 +12,11 @@ print_ai_move(Position):- write('List\'IA joue en '), write(Position), nl, nl.
 
 print_board(_,0).							   
 print_board(Board, Position):-	Position > 0,
-					NewPosition is Position-1,
-					maplist(get_element_from_index(Position), Board, List),
-					print_list(List),
-					print_separator(),
-					print_board(Board, NewPosition).
+								NewPosition is Position-1,
+								maplist(get_element_from_index(Position), Board, List),
+								print_list(List),
+								print_separator(),
+								print_board(Board, NewPosition).
 
 % print_board/1 affiche la grille de jeu (Params : 1er = plateau)
 print_board(Board):- print_column_numbers(), print_board(Board,6).
@@ -26,8 +26,8 @@ print_column_numbers():- write(' + 1 + 2 + 3 + 4 + 5 + 6 + 7 +'), nl.
 print_separator():- write(' +---+---+---+---+---+---+---+'), nl.
 
 print_list([]):- write(' |'), nl.
-print_list([Element|List]):-  write(' | '), 
-						print_value(Element),
-						print_list(List).
+print_list([Element|List]):-  	write(' | '), 
+								print_value(Element),
+								print_list(List).
 print_value([]):- write(' '),!.
 print_value(Element):- write(Element).

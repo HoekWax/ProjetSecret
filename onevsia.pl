@@ -83,17 +83,17 @@ turn_ai(Board):- turn_ai(0,Board).
 
 turn_ai(0, _):- print_no_move_available().
 
-turn_ai(WinningMove, Board):- make_move_ai(WinningMove,Board,o,NewBoard,Board),
-				print_ai_move(WinningMove),
-				print_board(NewBoard),
-				nl,
-				player_turn(NewBoard).
+turn_ai(WinningMove, Board):- 	make_move_ai(WinningMove,Board,o,NewBoard,Board),
+								print_ai_move(WinningMove),
+								print_board(NewBoard),
+								nl,
+								player_turn(NewBoard).
 		
 
 % player_turn/1 demande au joueur contre l'ia de jouer, il vérifie aussi si l'ia a gagné (Params : 1er = plateau)
 player_turn(Board):- check_end_game(Board,Player), print_winner(Player),!.
-player_turn(Board):- print_turn_x(),
-				read(Position), make_move_player(Position,Board, x, NewBoard, Board),
-				print_board(NewBoard),
-				nl,
-				turn_ai(NewBoard).
+player_turn(Board):- 	print_turn_x(),
+						read(Position), make_move_player(Position,Board, x, NewBoard, Board),
+						print_board(NewBoard),
+						nl,
+						turn_ai(NewBoard).

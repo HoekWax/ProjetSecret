@@ -1,3 +1,7 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Prédicats de vérification de fin de jeu
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % check_end_game_vertically/2 vérifie si 4 valeurs sont les mêmes verticalement (Params : 1er = plateau, 2e = joueur)
 check_end_game_vertically([L|_],Player):- sublist([Player,Player,Player,Player], L),!.
 check_end_game_vertically([_|Board],Player):- check_end_game_vertically(Board,Player).

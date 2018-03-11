@@ -1,3 +1,7 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Prédicats utilitaires
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % add_to_end/3 ajoute une valeur à la fin d'une liste (Params : 1er = valeur, 2e = liste, 3e = liste retournée)
 add_to_end(Element,List,NewList) :- append(List,[Element],NewList).
 

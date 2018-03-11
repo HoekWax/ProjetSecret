@@ -1,3 +1,7 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Prédicats d'affichage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % print_winner/1 affiche le joueur gagnant (Params : 1er = joueur)
 print_winner(Player):-write('Le gagnant est '), write(Player).
 

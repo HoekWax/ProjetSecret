@@ -1,3 +1,7 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Prédicats pour le mode 1 vs 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % make_move/5 est pour le mode 1 contre 1 et garde en mémoire le coup qui vient d'être joué et affiche une erreur si nécessaire
 % (Params : 1er = position, 2e = plateau, 3e = joueur, 4e = nouveau plateau, 5e = plateau de sauvegarde)	
 make_move(1, [List|_], x, _, SaveBoard):- lenght(List,Position), Position >= 6, print_impossible_move(), turn_x(SaveBoard).
